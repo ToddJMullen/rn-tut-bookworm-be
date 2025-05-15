@@ -13,11 +13,11 @@ const generateToken = userId => {
  * Registration endpoint
  */
 router.post("/register", async (req, res) => {
-  console.log("register/", req);
+  console.log("register/");
 
   try {
     const { email, username, password } = req.body;
-  console.log("register/", {req, email, username, password});
+  console.log("register/", {email, username});
 
     // validate fields
     if (!username || !email || !password) {
@@ -86,7 +86,7 @@ router.post("/register", async (req, res) => {
  * User login endpoint
  */
 router.post("/login", async (req, res) => {
-  console.log("login/", req);
+  console.log("login/");
   
   try {
     const {email, password} = req.body;
