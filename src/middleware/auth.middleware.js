@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const protectRoute = async (req, res, next) => {
-  console.log("protectRoute/", {req, res});
+  // console.log("protectRoute/", {req, res});
   try {
 
     const token = req.header("Authorization").replace("Bearer ", "");
