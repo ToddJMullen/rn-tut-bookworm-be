@@ -17,6 +17,7 @@ router.post("/register", async (req, res) => {
 
   try {
     const { email, username, password } = req.body;
+  console.log("register/", {req, email, username, password});
 
     // validate fields
     if (!username || !email || !password) {
