@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
 
   try {
     const { email, username, password } = req.body;
-  console.log("register/", {email, username});
+    console.log("register/", {email, username});
 
     // validate fields
     if (!username || !email || !password) {
@@ -36,13 +36,16 @@ router.post("/register", async (req, res) => {
     }
 
     // check user existence
-
+    console.log("register/ info valid, checking email existence");
+    
     const existingEmail = await User.findOne({ email });
+    console.log("register/ found?", {existingEmail});
 
     if (existingEmail) {
       return res.status(400).json({ message: "Email already exists" });
     }
 
+    console.log("register/ info valid, checking username existence");
     const existingUsername = await User.findOne({ username });
 
     if (existingUsername) {
@@ -60,15 +63,18 @@ router.post("/register", async (req, res) => {
       password,
       profileImage,
     });
+    console.log("register/ user built, about to save", { user });
 
     // create the user, pwd hashed in User prehook
-    await user.save();
+    const rsp = await user.save();
+    console.log("register/ user saved", {rsp});
 
     // create JWT for the user/session
     const token = generateToken(user._id);
+    console.log("register/ token", { token });
 
     // return the token & user data minus the pwd
-    res.status(201).json({token, user: {
+    return res.status(201).json({token, user: {
       _id: user._id,
       username: user.username,
       email: user.email,
