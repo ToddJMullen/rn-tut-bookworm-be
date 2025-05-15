@@ -1,0 +1,131 @@
+import express from "express";
+import { v2 as cloudinary } from "cloudinary";
+import protectRoute from "../middleware/auth.middleware.js";
+import Book from "../models/Book.js";
+
+const router = express.Router();
+
+/**
+ * Adds a user submitted book if logged in with a valid token
+ * and all required fields are present.
+ *
+ * @method POST to create a book record
+ *
+ * @see protectRoute method confirms the user has a valid token and adds their data to the request data here
+ */
+router.post("/", protectRoute, async (req, res) => {
+  try {
+    const { title, caption, rating, image } = req.body;
+
+    if (!image || !title || !caption || !rating) {
+      return res.status(400).json({ message: "Please provide all fields." });
+    }
+
+    const uploaderResponse = await cloudinary.uploader.upload(image);
+    const imageUrl = uploaderResponse.secure_url;
+
+    // save to the Db
+    const newBook = new Book({
+      title,
+      caption,
+      rating,
+      image: imageUrl,
+      user: req.user._id,
+    });
+
+    newBook.save();
+
+    res.status(201).json(newbook);
+  } catch (error) {
+    console.error("book/create/error", error);
+  }
+});
+
+/**
+ * Fetch all books with pagination for infinite scrolling.
+ * Returned in descending order
+ *
+ * @method GET to fetch all books
+ * @see protectRoute
+ */
+router.get("/", protectRoute, async (req, res) => {
+  console.log("method/", req);
+  try {
+    // get the current pagination info
+    const page = request.query.page || 1;
+    const limit = req.query.limit || 5;
+    const skip = (page - 1) * limit;
+
+    const books = await Book.find()
+      .sort({ createdAt: -1 }) // descending
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "username profileImage");
+
+    const total = Book.countDocuments();
+
+    res.send({
+      books,
+      currentPage: page,
+      totalBooks: total,
+      totalPages: Math.ceil(totalBooks / limit),
+    });
+  } catch (error) {
+    console.error("/books/", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/user", protectRoute, async (req, res) => {
+  console.log("get/books/user/", req);
+  try {
+    const books = await Books.find({ user: req.user._id }).sort({
+      createdAt: -1,
+    });
+    return res.json(books);
+  } catch (error) {
+    console.error("get/books/user/", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}); // get / user
+
+/**
+ * Delete given book data iff belongs to the authenticated user.
+ * Also deletes the book image record.
+ *
+ * @method DELETE to remove record
+ * @see protectRoute
+ */
+router.delete("/:id", protectRoute, async (req, res) => {
+  console.log("delete/book/", req);
+  try {
+    const id = req.params.id;
+    const book = await Book.findById(id);
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    if (book.user.toString() !== req.user._id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // delete the book image too
+    if (book?.image && book.image.includes("cloudinary")) {
+      try {
+        const publicId = book.image.split("/").pop().split(".")[0];
+        cloudinary.uploader.destroy(publicId);
+      } catch (error) {
+        console.error("delete/book/delete/image/error", error);
+      }
+    }
+
+    book.deleteOne();
+    res.json({ message: "Book deleted successfully" });
+  } catch (error) {
+    console.error("delete/book/", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}); // delete / :id
+
+export default router;
