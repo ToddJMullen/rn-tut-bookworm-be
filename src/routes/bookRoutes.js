@@ -2,6 +2,7 @@ import express from "express";
 import { v2 as cloudinary } from "cloudinary";
 import protectRoute from "../middleware/auth.middleware.js";
 import Book from "../models/Book.js";
+import "dotenv/config";
 
 const router = express.Router();
 
@@ -14,13 +15,27 @@ const router = express.Router();
  * @see protectRoute method confirms the user has a valid token and adds their data to the request data here
  */
 router.post("/", protectRoute, async (req, res) => {
-  console.log("/book/post", {body: req?.body} );
+  console.log("/book/post", {body: {...req?.body, image: req?.body.image.substring(0, 10)}} );
   try {
     const { title, caption, rating, image } = req.body;
 
     if (!image || !title || !caption || !rating) {
       return res.status(400).json({ message: "Please provide all fields." });
     }
+
+
+
+    console.log("cloudinary/ data", {
+      n: process.env.CLOUDINARY_CLOUD_NAME,
+      k: process.env.CLOUDINARY_API_KEY.slice(-5),
+      s: process.env.CLOUDINARY_API_SECRET.slice(-5),
+    });
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
 
     const uploaderResponse = await cloudinary.uploader.upload(image);
     const imageUrl = uploaderResponse.secure_url;
@@ -51,7 +66,7 @@ router.post("/", protectRoute, async (req, res) => {
  * @see protectRoute
  */
 router.get("/", protectRoute, async (req, res) => {
-  console.log("method/", req);
+  console.log("book/", req);
   try {
     // get the current pagination info
     const page = request.query.page || 1;
