@@ -16,7 +16,7 @@ const router = express.Router();
  * @see protectRoute method confirms the user has a valid token and adds their data to the request data here
  */
 router.post("/", protectRoute, async (req, res) => {
-  console.log("post/books/", {body: {...req?.body, image: req?.body.image.substring(0, 10)}} );
+  console.log("post/books/", {body: {...req?.body, len: req?.body.image?.length, image: req?.body.image.substring(0, 10)}} );
   try {
     const { title, caption, rating, image } = req.body;
 
@@ -79,8 +79,8 @@ router.get("/", protectRoute, async (req, res) => {
 
     res.json({
       books,
-      totalBooks,
-      currentPage: page,
+      // totalBooks,
+      // currentPage: page,
       totalPages: Math.ceil(totalBooks / limit),
     });
   } catch (error) {
