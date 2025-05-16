@@ -67,10 +67,10 @@ router.post("/", protectRoute, async (req, res) => {
  * @see protectRoute
  */
 router.get("/", protectRoute, async (req, res) => {
-  console.log("book/", req);
+  console.log("book/", {params: req.query});
   try {
     // get the current pagination info
-    const page = request.query.page || 1;
+    const page = req.query.page || 1;
     const limit = req.query.limit || 5;
     const skip = (page - 1) * limit;
 
@@ -90,12 +90,12 @@ router.get("/", protectRoute, async (req, res) => {
     });
   } catch (error) {
     console.error("/books/", error);
-    return res.status(500).json({ message: "br75, Internal server error" });
+    return res.status(500).json({ message: "br75, Internal server error: " + error.message });
   }
 });
 
 router.get("/user", protectRoute, async (req, res) => {
-  console.log("get/books/user/", req);
+  console.log("get/books/user/", { reqBody: req.body });
   try {
     const books = await Books.find({ user: req.user._id }).sort({
       createdAt: -1,
@@ -115,7 +115,7 @@ router.get("/user", protectRoute, async (req, res) => {
  * @see protectRoute
  */
 router.delete("/:id", protectRoute, async (req, res) => {
-  console.log("delete/book/", req);
+  console.log("delete/book/", { reqBody: req.body });
   try {
     const id = req.params.id;
     const book = await Book.findById(id);
