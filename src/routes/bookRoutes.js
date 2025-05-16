@@ -80,12 +80,12 @@ router.get("/", protectRoute, async (req, res) => {
       .limit(limit)
       .populate("user", "username profileImage");
 
-    const total = Book.countDocuments();
+    const totalBooks = Book.countDocuments();
 
     res.send({
       books,
+      totalBooks,
       currentPage: page,
-      totalBooks: total,
       totalPages: Math.ceil(totalBooks / limit),
     });
   } catch (error) {
