@@ -8,6 +8,11 @@ const generateToken = userId => {
   return jwt.sign({userId}, process.env.JWT_SECRET, {expiresIn: "15d"})
 }
 
+router.post('/check', async (req,res) => {
+  console.log("check/");
+  return res.json({message: "Check passed"});
+})
+
 
 /**
  * Registration endpoint
