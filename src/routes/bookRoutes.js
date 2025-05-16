@@ -1,8 +1,9 @@
 import express from "express";
-import { v2 as cloudinary } from "cloudinary";
+// import { v2 as cloudinary } from "cloudinary";
 import protectRoute from "../middleware/auth.middleware.js";
 import Book from "../models/Book.js";
 import "dotenv/config";
+import cloudinary from "../lib/cloudinary.js";
 
 const router = express.Router();
 
@@ -31,11 +32,11 @@ router.post("/", protectRoute, async (req, res) => {
       s: process.env.CLOUDINARY_API_SECRET.slice(-5),
     });
 
-    cloudinary.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    });
+    // cloudinary.config({
+    //   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    //   api_key: process.env.CLOUDINARY_API_KEY,
+    //   api_secret: process.env.CLOUDINARY_API_SECRET,
+    // });
 
     const uploaderResponse = await cloudinary.uploader.upload(image);
     const imageUrl = uploaderResponse.secure_url;
@@ -51,7 +52,7 @@ router.post("/", protectRoute, async (req, res) => {
 
     newBook.save();
 
-    res.status(201).json(newbook);
+    res.status(201).json(newBook);
   } catch (error) {
     console.error("book/create/error", error);
     return res.status(500).json({message: error.message})
