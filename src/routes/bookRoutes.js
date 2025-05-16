@@ -26,16 +26,10 @@ router.post("/", protectRoute, async (req, res) => {
 
 
 
-    console.log("post/books/cloudinary/ data", {
-      n: process.env.CLOUDINARY_CLOUD_NAME,
-      k: process.env.CLOUDINARY_API_KEY.slice(-5),
-      s: process.env.CLOUDINARY_API_SECRET.slice(-5),
-    });
-
-    // cloudinary.config({
-    //   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    //   api_key: process.env.CLOUDINARY_API_KEY,
-    //   api_secret: process.env.CLOUDINARY_API_SECRET,
+    // console.log("post/books/cloudinary/ data", {
+    //   n: process.env.CLOUDINARY_CLOUD_NAME,
+    //   k: process.env.CLOUDINARY_API_KEY.slice(-5),
+    //   s: process.env.CLOUDINARY_API_SECRET.slice(-5),
     // });
 
     const uploaderResponse = await cloudinary.uploader.upload(image);
@@ -69,10 +63,10 @@ router.post("/", protectRoute, async (req, res) => {
 router.get("/", protectRoute, async (req, res) => {
   try {
     // get the current pagination info
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 5;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
-    console.log("get/books/", {page, limit, skip});
+    console.log("get/books/", { page, limit, skip });
 
     const books = await Book.find()
       .sort({ createdAt: -1 }) // descending
@@ -80,17 +74,20 @@ router.get("/", protectRoute, async (req, res) => {
       .limit(limit)
       .populate("user", "username profileImage");
 
-    const totalBooks = Book.countDocuments();
+    // You need to await the countDocuments query
+    const totalBooks = await Book.countDocuments();
 
-    res.send({
+    res.json({
       books,
       totalBooks,
       currentPage: page,
       totalPages: Math.ceil(totalBooks / limit),
     });
   } catch (error) {
-    console.error("get/books/error", error.message );
-    return res.status(500).json({ message: "br75, Internal server error: " + error.message });
+    console.error("get/books/error", error.message);
+    return res
+      .status(500)
+      .json({ message: "br75, Internal server error: " + error.message });
   }
 });
 
