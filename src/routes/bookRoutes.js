@@ -16,7 +16,7 @@ const router = express.Router();
  * @see protectRoute method confirms the user has a valid token and adds their data to the request data here
  */
 router.post("/", protectRoute, async (req, res) => {
-  console.log("/book/post", {body: {...req?.body, image: req?.body.image.substring(0, 10)}} );
+  console.log("post/books/", {body: {...req?.body, image: req?.body.image.substring(0, 10)}} );
   try {
     const { title, caption, rating, image } = req.body;
 
@@ -26,7 +26,7 @@ router.post("/", protectRoute, async (req, res) => {
 
 
 
-    console.log("cloudinary/ data", {
+    console.log("post/books/cloudinary/ data", {
       n: process.env.CLOUDINARY_CLOUD_NAME,
       k: process.env.CLOUDINARY_API_KEY.slice(-5),
       s: process.env.CLOUDINARY_API_SECRET.slice(-5),
@@ -54,7 +54,7 @@ router.post("/", protectRoute, async (req, res) => {
 
     res.status(201).json(newBook);
   } catch (error) {
-    console.error("book/create/error", error);
+    console.error("post/books/error/", error);
     return res.status(500).json({message: error.message})
   }
 });
@@ -67,12 +67,12 @@ router.post("/", protectRoute, async (req, res) => {
  * @see protectRoute
  */
 router.get("/", protectRoute, async (req, res) => {
-  console.log("book/", {params: req.query});
   try {
     // get the current pagination info
     const page = req.query.page || 1;
     const limit = req.query.limit || 5;
     const skip = (page - 1) * limit;
+    console.log("get/books/", {page, limit, skip});
 
     const books = await Book.find()
       .sort({ createdAt: -1 }) // descending
@@ -89,7 +89,7 @@ router.get("/", protectRoute, async (req, res) => {
       totalPages: Math.ceil(totalBooks / limit),
     });
   } catch (error) {
-    console.error("/books/", error);
+    console.error("get/books/error", error.message );
     return res.status(500).json({ message: "br75, Internal server error: " + error.message });
   }
 });
@@ -115,7 +115,7 @@ router.get("/user", protectRoute, async (req, res) => {
  * @see protectRoute
  */
 router.delete("/:id", protectRoute, async (req, res) => {
-  console.log("delete/book/", { reqBody: req.body });
+  console.log("delete/books/", { reqBody: req.body });
   try {
     const id = req.params.id;
     const book = await Book.findById(id);
@@ -134,14 +134,14 @@ router.delete("/:id", protectRoute, async (req, res) => {
         const publicId = book.image.split("/").pop().split(".")[0];
         cloudinary.uploader.destroy(publicId);
       } catch (error) {
-        console.error("delete/book/delete/image/error", error);
+        console.error("delete/books/delete/image/error", error);
       }
     }
 
     book.deleteOne();
     res.json({ message: "Book deleted successfully" });
   } catch (error) {
-    console.error("delete/book/", error);
+    console.error("delete/books/error", error);
     return res.status(500).json({ message: "br127, Internal server error" });
   }
 }); // delete / :id
