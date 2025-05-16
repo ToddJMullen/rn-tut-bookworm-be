@@ -14,6 +14,7 @@ const router = express.Router();
  * @see protectRoute method confirms the user has a valid token and adds their data to the request data here
  */
 router.post("/", protectRoute, async (req, res) => {
+  console.log("/book/post", {body: req?.body} );
   try {
     const { title, caption, rating, image } = req.body;
 
@@ -38,6 +39,7 @@ router.post("/", protectRoute, async (req, res) => {
     res.status(201).json(newbook);
   } catch (error) {
     console.error("book/create/error", error);
+    return res.status(500).json({message: error.message})
   }
 });
 
