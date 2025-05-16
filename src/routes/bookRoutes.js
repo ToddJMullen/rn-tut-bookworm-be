@@ -72,7 +72,7 @@ router.get("/", protectRoute, async (req, res) => {
     });
   } catch (error) {
     console.error("/books/", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "br75, Internal server error" });
   }
 });
 
@@ -85,7 +85,7 @@ router.get("/user", protectRoute, async (req, res) => {
     return res.json(books);
   } catch (error) {
     console.error("get/books/user/", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "br88, Internal server error" });
   }
 }); // get / user
 
@@ -124,7 +124,7 @@ router.delete("/:id", protectRoute, async (req, res) => {
     res.json({ message: "Book deleted successfully" });
   } catch (error) {
     console.error("delete/book/", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ message: "br127, Internal server error" });
   }
 }); // delete / :id
 
